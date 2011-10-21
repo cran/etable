@@ -1,0 +1,694 @@
+
+\documentclass[a4paper]{article}
+\usepackage{graphics}
+\usepackage{Sweave}
+\setlength{\parskip}{0.7ex plus0.1ex minus0.1ex}
+\setlength{\parindent}{0em}
+\title{Package etable}
+\author{Andreas Schulz}
+\date{\today}
+
+
+%===============================================================================
+<<echo=FALSE>>=
+#setwd('D:/WORK/Schulz/R/R_Package/EasyTable-package/Vignette')
+options(width=96, continuation="   ")
+library(xtable)
+library(etable)
+@
+%===============================================================================
+
+
+
+\begin{document}
+\SweaveOpts{engine=R}
+
+%\VignetteIndexEntry{Create different tables}
+%\VignetteDepends{xtable, Hmisc}
+%\VignetteKeywords{table}
+%\VignettePackage{etable}
+
+\maketitle
+
+Some examples and explanations for this package.
+
+%%%%%%%%%%%%%%%%%%%
+%                 %
+%       ##        %
+%      # #        %
+%     #  #        %
+%        #        %
+%        #        %
+%        #        %
+%     #######     %
+%                 %
+%%%%%%%%%%%%%%%%%%%
+
+%===============================================================================
+%###############################################################################
+%===============================================================================
+\section{Random Data}
+At first we need data to work with.
+Therefore we create a data.frame with random data.
+
+
+%======================================
+<<a>>=
+
+set.seed(31415)
+age     <-   round(runif(10000, 20, 80))
+dec     <-   cut(age, c(20, 30, 40, 50, 60, 70, 80))
+weight  <-   rnorm(10000, mean=80, sd=10)
+height  <-   rnorm(10000, mean=1.6, sd=0.1)
+bmi     <-   weight/height^2
+bmi_q   <-   cut(bmi, quantile(bmi, c(0, 0.25, 0.5, 0.75, 1)))
+sex     <-   factor(as.factor(rbinom(10000, 1, 0.5)), labels=c('Men', 'Women'))
+ethnic  <-   factor(as.factor(rbinom(10000, 1, 0.75)), labels=c('Other', 'Caucasian'))
+stage   <-   as.factor(rbinom(10000, 2, 0.3)+1)
+disease <-   factor(as.factor(rbinom(10000, 1, 0.1)), labels=c('no','yes'))
+treat   <-   factor(as.factor(rbinom(10000, 1, 0.2)), labels=c('no','yes'))
+ws      <-   abs(rnorm(10000))
+d<-data.frame(sex, age, dec, ethnic, weight, height, bmi, bmi_q, stage, disease, treat, ws)
+
+print(str(d))
+@
+%======================================
+
+
+\newpage
+%===============================================================================
+%###############################################################################
+%===============================================================================
+
+%%%%%%%%%%%%%%%%%%%
+%                 %
+%      #####      %
+%     #     #     %
+%           #     %
+%      #####      %
+%     #           %
+%     #           %
+%     ######      %
+%                 %
+%%%%%%%%%%%%%%%%%%%
+
+%===============================================================================
+%###############################################################################
+%===============================================================================
+\section{Simple tables}
+
+%===============================================================================
+\subsection{ 2 $\times$ 1 table.}
+
+Here is a simple example for a table with predefined cell-function iqr\_cell.
+We want to calculate median, Q1 and Q3 for bmi variable in data.frame d.
+We select a variable to calculate with, \texttt{x\_vars='bmi'}.
+With \texttt{data=d} we set the data.frame.
+With \texttt{rows='sex'} we set the factor to separate the table in rows.
+Parameter \texttt{rnames='Sex'} gives only the label for the row factor.
+
+<<results=tex>>=
+Tab <- tabular.ade(x_vars='bmi', rows='sex', rnames='Sex', data=d, FUN=iqr_cell)
+print(xtable(Tab, caption='Median (Q1/Q3) of BMI'), include.rownames=F, include.colnames=F, caption.placement="top")
+@
+\bigskip
+%===============================================================================
+
+
+%===============================================================================
+\subsection{ 2 $\times$ 2 table.}
+
+For creating a 2 $\times$ 2 table, we need to specify a second factor for columns.
+Let it be ethnicity \texttt{cols='ethnic'} and set the label to \texttt{cnames='Ethnicity'}.
+
+<<results=tex>>=
+Tab<-tabular.ade(x_vars='bmi', rows='sex', rnames='Sex', cols='ethnic', cnames='Ethnicity', data=d, FUN=iqr_cell)
+print(xtable(Tab, caption='Median (Q1/Q3) of BMI'), include.rownames=F, include.colnames=F, caption.placement="top")
+@
+\bigskip
+\newpage
+%===============================================================================
+
+
+%===============================================================================
+\subsection{ n(nested) $\times$ 2 table.}
+
+We can use more then one factor for rows(cols) to create nested rows(columns).
+Use \texttt{rows=c('sex', 'dec'), rnames=c('Sex', 'Decades')}
+to make more complicated table.
+
+
+<<results=tex>>=
+Tab<-tabular.ade(x_vars='bmi', rows=c('sex', 'dec'), rnames=c('Sex', 'Decades'), cols='ethnic', cnames='Ethnicity', data=d, FUN=iqr_cell)
+print(xtable(Tab, caption='Median (Q1/Q3) of BMI'), include.rownames=F, include.colnames=F, caption.placement="top")
+@
+\bigskip
+\newpage
+%===============================================================================
+
+
+%===============================================================================
+\subsection{ n $\times$ n nested table.}
+
+Now we use an other cell function n\_cell to save space for a big table.
+This function returns only the number of observation in each cell.
+Furthermore we use the factors for rows and cols in other way.
+
+
+<<results=tex>>=
+Tab<-tabular.ade(x_vars='bmi', rows=c('dec', 'bmi_q'), rnames=c('Decades', 'BMI Quantiles'),
+cols=c('sex', 'ethnic'), cnames=c('Sex', 'Ethnicity'), data=d, FUN=n_cell)
+
+print(xtable(Tab, caption='N of Obs.'), include.rownames=F, include.colnames=F, caption.placement="top")
+@
+
+\bigskip
+\newpage
+%===============================================================================
+
+
+%===============================================================================
+\subsection{ n $\times$ 1 table.}
+
+With cell function quantile\_cell we can calculate any quantiles.
+Let's make a big table with only one column.
+With additional parameter \texttt{probs = 0.95} we choose the 95th quantile.
+
+<<results=tex>>=
+Tab<-tabular.ade(x_vars='bmi', xname='BMI', rows=c('sex', 'ethnic', 'disease', 'treat'), rnames=c('Sex', 'Ethnicity', 'Disease', 'Treatment'), data=d, FUN=quantile_cell, probs = 0.95)
+
+print(xtable(Tab, caption='95th quantile of BMI'), include.rownames=F, include.colnames=F,caption.placement="top")
+@
+
+\newpage
+%===============================================================================
+%###############################################################################
+%===============================================================================
+
+%%%%%%%%%%%%%%%%%%%
+%                 %
+%      #####      %
+%     #     #     %
+%           #     %
+%      #####      %
+%           #     %
+%     #     #     %
+%      #####      %
+%                 %
+%%%%%%%%%%%%%%%%%%%
+
+%===============================================================================
+%###############################################################################
+%===============================================================================
+\section{Predefined cell functions}
+There are several predefined cell functions in this package.
+Here is a list.
+See the help pages from the package for more information.
+
+
+\itemize{
+      \item{ \texttt{{\bf stat\_cell}(\textit{basic parameters}, digits=3, digits2=1)} }
+      \item{ \texttt{{\bf combi\_cell}(\textit{basic parameters}, digits=3, style=1)} }
+      \item{ \texttt{{\bf n\_cell}(\textit{basic parameters}, digits=0, type="n")} }
+      \item{ \texttt{{\bf mean\_sd\_cell}(\textit{basic parameters}, digits=3, style=1, nsd=1)} }
+      \item{ \texttt{{\bf iqr\_cell}(\textit{basic parameters}, digits=3, add\_n=FALSE)} }
+      \item{ \texttt{{\bf quantile\_cell}(\textit{basic parameters}, digits=3, probs=0.5, plabels=FALSE)} }
+      \item{ \texttt{{\bf eventpct\_cell}(\textit{basic parameters}, digits=1, digits2=0, event=2, type=1)} }
+      \item{ \texttt{{\bf miss\_cell}(\textit{basic parameters}, pct=FALSE, digits=0, prefix="", suffix="")} }
+      \item{ \texttt{{\bf corr\_p\_cell}(\textit{basic parameters}, digits=3)} }
+      \item{ \texttt{{\bf mode\_cell}(\textit{basic parameters}, digits=3)} }
+      
+}
+
+\textit{basic parameters} are  \  \texttt{x, y, z, w, cell\_ids, row\_ids, col\_ids, vnames, vars, n\_min} \
+ each cell function must take this parameters. They will be automatically passed from tabular.and function.
+Most of the functions uses only the \texttt{x} variable for calculations and w for weighted calculations.
+Only \texttt{{\bf corr\_p\_cell}} and \texttt{{\bf stat\_p\_cell}} uses \texttt{y} variable. \\
+Additional parameters like \texttt{digits = 3} can be used in \\
+\texttt{{\bf tabular.ade}(   ,...)}
+instead of the points.
+
+
+\newpage
+%===============================================================================
+%###############################################################################
+%===============================================================================
+
+%%%%%%%%%%%%%%%%%%%
+%                 %
+%     #     #     %
+%     #     #     %
+%     #     #     %
+%     #######     %
+%           #     %
+%           #     %
+%           #     %
+%                 %
+%%%%%%%%%%%%%%%%%%%
+
+%===============================================================================
+%###############################################################################
+%===============================================================================
+\section{Writing custom cell function}
+
+%===============================================================================
+There is a possibilityl to write your own cell-function.
+It allows all possible designs of the cell and a lot more.
+
+
+\subsection{ A example of an own custom cell function.}
+
+\begin{Sinput}
+my_cell<- function(x, y, z, w, cell_ids, row_ids, col_ids, vnames, vars, n_min)
+{
+  out<- format(mean(x[cell_ids], na.rm=T), digits = 3)
+  return(out)
+}
+
+tab<-tabular.ade(x_vars='age', rows='sex', rnames='Sex', cols='dec',
+cnames='Decades', data=d, FUN=my_cell)
+\end{Sinput}
+It must take the \textit{basic parameters}:  \
+\texttt{x, y, z, w, cell\_ids, row\_ids, col\_ids, vnames, vars, n\_min} \
+, but it can take more own parameters after the basic parameters.
+
+
+<<results=tex, echo=FALSE>>=
+my_cell<- function(x, y, z, w, cell_ids, row_ids, col_ids, vnames, vars, n_min)
+{
+out<- format(mean(x[cell_ids], na.rm=TRUE), digits = 3)
+return(out)
+}
+
+tab<-tabular.ade(x_vars='age', rows='sex', rnames='Sex', cols='dec', cnames='Decades', data=d, FUN=my_cell)
+print(xtable(tab, caption='Mean Age'), include.rownames=F, include.colnames=F,caption.placement="top")
+@
+\bigskip
+%===============================================================================
+
+%===============================================================================
+\newpage
+\subsection{ An other simple example of a own custom cell function.}
+
+
+\begin{Sinput}
+my_cell<- function(x, y, z, w, cell_ids, row_ids, col_ids, vnames, vars, n_min)
+{
+  out<- NULL
+  tab<-table(x[cell_ids])
+  for(i in 1:length(tab)){
+    out<- paste(out, levels(x)[i],': ' ,tab[i], sep='')
+    if(i<length(tab)) out<- paste(out, ', ', sep='')
+  }
+  return(out)
+}
+
+tab<-tabular.ade(x_vars='sex', rows='dec', rnames='Decades', cols='stage',
+cnames='Stage',  data=d, FUN=my_cell)
+\end{Sinput}
+
+
+<<results=tex, echo=FALSE>>=
+my_cell<- function(x, y, z, w, cell_ids, row_ids, col_ids, vnames, vars, n_min)
+{
+out<- NULL
+tab<-table(x[cell_ids])
+for(i in 1:length(tab)){
+out<- paste(out, levels(x)[i],': ' ,tab[i], sep='')
+if(i<length(tab)) out<- paste(out, ', ', sep='')
+}
+return(out)
+}
+
+tab<-tabular.ade(x_vars='sex', rows='dec', rnames='Decades', cols='stage', cnames='Stage', data=d, FUN=my_cell)
+print(xtable(tab, caption='Frequencies'), include.rownames=F, include.colnames=F,caption.placement="top")
+@
+
+\bigskip
+\newpage
+%===============================================================================
+
+
+
+%===============================================================================
+\subsection{ More complicated cell function. }
+
+
+\begin{Sinput}
+b_cell<- function(x, y, z, w, cell_ids, row_ids, col_ids, vnames, vars, n_min){
+out<- NULL
+if(length(unique(x))==2){
+lv<-levels(x)
+n <-sum(x[cell_ids]==lv[2])
+N <-sum(table(x[cell_ids]))
+out<- paste(levels(x)[2],': ' , format((n/N)*100, digits=3), '% (N:',n,')',sep='')
+}
+if(!is.factor(x) & length(unique(x))> 2){
+quant <- format(quantile(x[cell_ids], c(0.25, 0.5, 0.75), na.rm=TRUE), digits=3)
+out<- paste(quant[1], ' (',quant[2],'/',quant[3],')', sep='')
+}
+if(is.factor(x) & length(unique(x))> 2){
+lv<-levels(x)
+n <-table(x[cell_ids])
+N <-sum(table(x[cell_ids]))
+out<- paste(lv,': ', format((n/N)*100,  digits=3), '%', collapse=' | ', sep='')
+}
+return(out)
+}
+
+tab<-tabular.ade(x_vars=c('bmi','ethnic','stage'), xname=c('BMI','Ethnicity','Stages'),
+ cols='sex', cnames='Sex', data=d, FUN=base_cell)
+\end{Sinput}
+
+
+<<results=tex, echo=FALSE>>=
+b_cell<- function(x, y, z, w, cell_ids, row_ids, col_ids, vnames, vars, n_min)
+{
+out<- NULL
+if(length(unique(x))==2){
+lv<-levels(x)
+n <-sum(x[cell_ids]==lv[2])
+N <-sum(table(x[cell_ids]))
+out<- paste(levels(x)[2], ': ' , format((n/N)*100,  digits=3), '% (N:',n , ')', sep='')
+}
+if(!is.factor(x) & length(unique(x))> 2){
+quant <- format(quantile(x[cell_ids], c(0.25, 0.5, 0.75), na.rm=TRUE), digits = 3)
+out<- paste(quant[1], ' (',quant[2],'/',quant[3],')', sep='')
+}
+if(is.factor(x) & length(unique(x))> 2){
+lv<-levels(x)
+n <-table(x[cell_ids])
+N <-sum(table(x[cell_ids]))
+out<- paste(lv, ': ', format((n/N)*100,  digits=3), '%', collapse=' | ',  sep='')
+}
+return(out)
+}
+
+tab<-tabular.ade(x_vars=c('bmi', 'ethnic', 'stage'), xname=c('BMI', 'Ethnicity', 'Stages'), cols='sex', cnames='Sex', data=d, FUN=b_cell)
+print(xtable(tab, caption='Diverse variables'), include.rownames=F, include.colnames=F,caption.placement="top")
+@
+
+\bigskip
+%===============================================================================
+
+
+
+\newpage
+%===============================================================================
+%###############################################################################
+%===============================================================================
+
+%%%%%%%%%%%%%%%%%%%
+%                 %
+%     #######     %
+%     #           %
+%     #           %
+%     #######     %
+%           #     %
+%           #     %
+%     #######     %
+%                 %
+%%%%%%%%%%%%%%%%%%%
+
+%===============================================================================
+%###############################################################################
+%===============================================================================
+\section{Multivariable tables}
+
+\subsection{ T-test. Usage of x and y variables. }
+
+\begin{Sinput}
+t_test_cell<- function(x, y, z, w, cell_ids, row_ids, col_ids, vnames, vars, n_min)
+{
+v <- x[cell_ids]
+group <- y[cell_ids]
+test<-t.test(v[which(group==levels(group)[1])], v[which(group==levels(group)[2])])
+mdiff<- format(diff(test$estimate), digits=3)
+p<- base:::format.pval(test$p.value, digits=2, eps=0.0001)
+out<- paste('Diff: ', mdiff, ', p-value: ', p, sep='')
+return(out)
+}
+
+tab<-tabular.ade(x_vars='bmi', xname='BMI', y_vars='ethnic', yname='Ethnicity',
+rows='dec', rnames='Decades', cols='sex', cnames='Sex', data=d, FUN=t_test_cell)
+\end{Sinput}
+
+
+
+<<results=tex, echo=FALSE>>=
+t_test_cell<- function(x, y, z, w, cell_ids, row_ids, col_ids, vnames, vars, n_min)
+{
+v <- x[cell_ids]
+group <- y[cell_ids]
+test<-t.test(v[which(group==levels(group)[1])], v[which(group==levels(group)[2])])
+mdiff<- format(diff(test$estimate), digits=3)
+p<- base:::format.pval(test$p.value, digits=2, eps=0.0001)
+out<- paste('Diff: ', mdiff, ', p-value: ', p, sep='')
+return(out)
+}
+
+tab<-tabular.ade(x_vars='bmi', xname='BMI', y_vars='ethnic', yname='Ethnicity', rows='dec', rnames='Decades', cols='sex', cnames='Sex', data=d, FUN=t_test_cell)
+print(xtable(tab, caption='T test for BMI means between Ethnicity'), include.rownames=F, include.colnames=F,caption.placement="top")
+@
+\bigskip
+\newpage
+%===============================================================================
+
+%===============================================================================
+\subsection{ Multiple x or y variables. }
+
+There's a possibility to pass more than one variable to \texttt{x\_vars} or \texttt{x\_vars}.
+In this way we can create for example a correlation matrix.
+
+
+<<results=tex, echo=TRUE>>=
+vars    <-c('age', 'weight', 'height', 'bmi')
+vlabels <-c('Age', 'Weight', 'Height', 'BMI')
+
+tab<-tabular.ade(x_vars=vars, xname=vlabels, y_vars=vars, yname=vlabels, data=d, FUN=corr_p_cell, digits=2)
+print(xtable(tab, caption='Pearson correlation'), include.rownames=F, include.colnames=F,caption.placement="top")
+@
+
+
+\bigskip
+%===============================================================================
+
+
+%===============================================================================
+\subsection{ Multiple x with nested columns. }
+
+Or just multiple x variable. Then they will be listed line by line.
+
+<<results=tex, echo=TRUE>>=
+vars    <-c('age', 'weight', 'height', 'bmi')
+vlabels <-c('Age', 'Weight', 'Height', 'BMI')
+
+tab<-tabular.ade(x_vars=vars, xname=vlabels, cols=c('sex', 'stage'), cnames=c('Sex', 'Stage'), data=d, FUN=quantile_cell)
+print(xtable(tab, caption='Medians'), include.rownames=F, include.colnames=F,caption.placement="top")
+@
+
+
+\bigskip
+\newpage
+%===============================================================================
+
+
+
+
+%===============================================================================
+%###############################################################################
+%===============================================================================
+
+%%%%%%%%%%%%%%%%%%%
+%                 %
+%     #######     %
+%     #           %
+%     #           %
+%     #######     %
+%     #     #     %
+%     #     #     %
+%     #######     %
+%                 %
+%%%%%%%%%%%%%%%%%%%
+
+%===============================================================================
+%###############################################################################
+%===============================================================================
+\section{Complex tables}
+
+\subsection{ The 'ALL' keyword.}
+
+The ALL keyword after a factor in rows or cols, adds additional group without separating in levels of this factor. \\
+
+
+\begin{Sinput}
+tab<-tabular.ade(x_vars='sex', rows=c('treat', 'ALL'), rnames=c('Treatment'),
+cols=c('disease', 'ALL'), cnames=c('Disease'), data=d, FUN=n_cell, alllabel='both')
+\end{Sinput}
+
+
+
+<<results=tex, echo=FALSE>>=
+
+tab<-tabular.ade(x_vars='sex', rows=c('treat', 'ALL'), rnames=c('Treatment'), cols=c('disease', 'ALL'), cnames=c('Disease'), data=d, FUN=n_cell, alllabel='both')
+print(xtable(tab, caption='Contingency table'), include.rownames=F, include.colnames=F,caption.placement="top")
+@
+\bigskip
+\newpage
+%===============================================================================
+
+
+%===============================================================================
+\subsection{ Weighted tables.}
+Most of predefined cell functions support weighting with \texttt{w=weights}.
+
+\begin{Sinput}
+tab<-tabular.ade(x_vars='sex', rows=c('sex', 'ALL', 'ethnic', 'stage'),
+rnames=c('Sex','Ethnicity', 'Stage'), w='ws', data=d, FUN=n_cell, digits=1)
+\end{Sinput}
+
+
+<<results=tex, echo=FALSE>>=
+
+tab<-tabular.ade(x_vars='sex', rows=c('sex', 'ALL', 'ethnic', 'stage'), rnames=c('Sex','Ethnicity', 'Stage'), w='ws', data=d, FUN=n_cell, digits=1)
+print(xtable(tab, caption='weighted N'), include.rownames=F, include.colnames=F,caption.placement="top")
+@
+\bigskip
+\newpage
+%===============================================================================
+
+
+%===============================================================================
+\subsection{ Various statistics in a table.}
+
+The predefined cell functions {\bf stat\_cell} can calculate several statistics.
+You can choose the statistics with keywords in \texttt{x\_vars} or \texttt{y\_vars}.
+
+
+\begin{Sinput}
+vars    <-c('age', 'weight', 'height', 'bmi')
+vlabels <-c('Age', 'Weight', 'Height', 'BMI')
+
+keywords  <-c('MIN', 'MAX', 'MEAN', 'SD', 'CV', 'SKEW',     'KURT')
+keylabels <-c('Min', 'Max', 'Mean', 'SD', 'CV', 'Skewness', 'Kurtosis')
+
+tab<-tabular.ade(x_vars=vars, xname=vlabels, y_vars=keywords, yname=keylabels,
+     data=d, FUN=stat_cell)
+\end{Sinput}
+
+
+
+<<results=tex, echo=FALSE>>=
+vars    <-c('age', 'weight', 'height', 'bmi')
+vlabels <-c('Age', 'Weight', 'Height', 'BMI')
+
+keywords  <-c('MIN', 'MAX', 'MEAN', 'SD', 'CV', 'SKEW',     'KURT')
+keylabels <-c('Min', 'Max', 'Mean', 'SD', 'CV', 'Skewness', 'Kurtosis')
+
+
+tab<-tabular.ade(x_vars=vars, xname=vlabels, y_vars=keywords, yname=keylabels, data=d, FUN=stat_cell)
+print(xtable(tab, caption='Various statistics'), include.rownames=F, include.colnames=F,caption.placement="top")
+@
+
+\newpage
+Or combined with  \texttt{rows} parameter.
+
+\begin{Sinput}
+keywords  <-c('N', 'MIN', 'MAX', 'MEAN', 'SD')
+keylabels <-c('N', 'Min', 'Max', 'Mean', 'SD')
+
+tab<-tabular.ade(x_vars=vars, xname=vlabels, y_vars=keywords, yname=keylabels,
+     rows=c('sex', 'ALL', 'ethnic'), rnames=c('Sex', 'Ethnicity'),
+     data=d, FUN=stat_cell)
+\end{Sinput}
+
+
+<<results=tex, echo=FALSE>>=
+keywords  <-c('N', 'MIN', 'MAX', 'MEAN', 'SD')
+keylabels <-c('N', 'Min', 'Max', 'Mean', 'SD')
+
+tab<-tabular.ade(x_vars=vars, xname=vlabels, y_vars=keywords, yname=keylabels, rows=c('sex', 'ALL', 'ethnic'), rnames=c('Sex', 'Ethnicity'), data=d, FUN=stat_cell)
+print(xtable(tab, caption='Various statistics'), include.rownames=F, include.colnames=F,caption.placement="top")
+@
+
+
+\newpage
+Now using the keywords in \texttt{x\_vars}.
+
+\begin{Sinput}
+keywords  <-c('N', 'MIN', 'MAX', 'MEAN', 'SD')
+keylabels <-c('N', 'Min', 'Max', 'Mean', 'SD')
+
+tab<-tabular.ade(x_vars=keywords, xname=keylabels, y_vars=vars, yname=vlabels,
+     rows=c('sex', 'ALL'), rnames=c('Sex'),
+     data=d, FUN=stat_cell)
+\end{Sinput}
+
+
+<<results=tex, echo=FALSE>>=
+keywords  <-c('N', 'MIN', 'MAX', 'MEAN', 'SD')
+keylabels <-c('N', 'Min', 'Max', 'Mean', 'SD')
+
+
+tab<-tabular.ade(x_vars=keywords, xname=keylabels, y_vars=vars, yname=vlabels, rows=c('sex', 'ALL'), rnames=c('Sex'),data=d, FUN=stat_cell)
+print(xtable(tab, caption='Various statistics'), include.rownames=F, include.colnames=F,caption.placement="top")
+@
+
+\bigskip
+\newpage
+%===============================================================================
+
+
+
+
+%===============================================================================
+\subsection{ Now all together.}
+
+A weighted, multivariable, nested table with several statistics.
+
+\begin{Sinput}
+vars    <-c('age', 'weight', 'height', 'bmi')
+vlabels <-c('Age', 'Weight', 'Height', 'BMI')
+
+keywords  <-c('N', 'MEDIAN', 'IQR')
+keylabels <-c('N', 'Median', 'IQR')
+
+tab<-tabular.ade(x_vars=vars, xname=vlabels, y_vars=keywords, yname=keylabels,
+     rows=c('sex', 'ALL'), rnames=c('Sex'),
+     cols=c('ethnic'), cnames=c('Ethnicity'),
+     w='ws', data=d, FUN=stat_cell)
+\end{Sinput}
+
+
+<<results=tex, echo=FALSE>>=
+vars    <-c('age', 'weight', 'height', 'bmi')
+vlabels <-c('Age', 'Weight', 'Height', 'BMI')
+
+keywords  <-c('N', 'MEDIAN', 'IQR')
+keylabels <-c('N', 'Median', 'IQR')
+
+tab<-tabular.ade(x_vars=vars, xname=vlabels, y_vars=keywords, yname=keylabels,rows=c('sex', 'ALL'), rnames=c('Sex'),cols=c('ethnic'),cnames=c('Ethnicity'),w='ws',data=d,FUN=stat_cell)
+print(xtable(tab, caption='Various statistics'), include.rownames=F, include.colnames=F,caption.placement="top")
+@
+
+\bigskip
+%===============================================================================
+
+
+
+
+
+
+%===============================================================================
+%###############################################################################
+%===============================================================================
+
+
+\end{document}
+
+
+
+
+
+
+
