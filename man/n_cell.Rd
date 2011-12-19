@@ -8,7 +8,7 @@ For calculating relative or absolute frequencies.
 }
 \usage{
    n_cell(x, y, z, w, cell_ids, row_ids, col_ids, vnames, vars, n_min,
-          digits=0, type="n")
+          digits=0, digits2=1, type="n")
 }
 \arguments{
 \item{x}{
@@ -42,16 +42,21 @@ NOT USED
 NOT USED
 }
 \item{digits}{
-Integer indicating the number of decimal places
+Integer indicating the number of decimal places (N)
+}
+\item{digits2}{
+Integer indicating the number of decimal places (percent)
 }
 \item{type}{
 Type of frequencies, one of following.
 \itemize{
       \item{n, Number in cell. }
       \item{pct, Overall percentages. }
-      \item{npct, Overall percentages and n. }
+      \item{pctn, Overall percentages and n. }
       \item{rowpct, Percentages of rows. }
       \item{colpct, Percentages of cols. }
+      \item{rowpctn, Percentages of rows and n. }
+      \item{colpctn, Percentages of cols and n. }
       \item{all, Overall, row, col percentages. }
       }
 }

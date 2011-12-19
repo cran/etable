@@ -1,8 +1,8 @@
 Package: etable
 Type: Package
 Title: Easy Table
-Version: 1.0.2
-Date: 2011-10-21
+Version: 1.0.3
+Date: 2011-12-19
 Depends: xtable, Hmisc, R (>= 2.13)
 Author: Andreas Schulz
 Maintainer: Andreas Schulz <ades-s@web.de>
@@ -11,5 +11,5 @@ Description: A table function for descriptive statistics in tabular
         or highly customized tables.
 License: GPL version 2 or newer
 LazyLoad: yes
-Packaged: 2011-10-21 08:27:42 UTC; scu9a
-Built: R 2.13.2; ; 2011-10-21 08:27:44 UTC; windows
+Packaged: 2011-12-19 08:19:55 UTC; scu9a
+Built: R 2.13.2; ; 2011-12-19 08:19:57 UTC; windows

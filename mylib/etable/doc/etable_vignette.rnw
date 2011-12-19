@@ -118,7 +118,7 @@ print(xtable(Tab, caption='Median (Q1/Q3) of BMI'), include.rownames=F, include.
 %===============================================================================
 \subsection{ 2 $\times$ 2 table.}
 
-For creating a 2 \begin{math} \times \end{math} 2 table, we need to specify a second factor for columns.
+For creating a 2 $\times$ 2 table, we need to specify a second factor for columns.
 Let it be ethnicity \texttt{cols='ethnic'} and set the label to \texttt{cnames='Ethnicity'}.
 
 <<results=tex>>=

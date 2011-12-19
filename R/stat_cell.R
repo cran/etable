@@ -116,7 +116,9 @@ out<- a.format_n.ade(as.numeric(min(x[cell_ids], na.rm=TRUE)),digits)
 
 #########################################
 if(keyword=='SUM'){
-out<- a.format_n.ade(wtd.mean(x[cell_ids], w[cell_ids], na.rm=TRUE)*sum(w[cell_ids][which(!is.na(x[cell_ids]))], na.rm=TRUE),digits)
+if(!is.null(w)) out<- a.format_n.ade(wtd.mean(x[cell_ids], w[cell_ids], na.rm=TRUE)*sum(w[cell_ids][which(!is.na(x[cell_ids]))], na.rm=TRUE),digits)
+if(is.null(w))  out<- a.format_n.ade(sum(x[cell_ids], na.rm=TRUE),digits)
+
 }
 #########################################
 
