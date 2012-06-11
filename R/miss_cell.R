@@ -6,4 +6,3 @@ if(pct)  out<- paste(prefix, a.round.ade(n, digits), ' (' ,a.round.ade((n/N)*100
 if(!pct) out<- paste(prefix, a.round.ade(n, digits),              suffix, sep='')
 return(out)
 }
-

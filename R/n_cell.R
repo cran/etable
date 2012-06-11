@@ -19,4 +19,3 @@ a.round.ade((sum(w[cell_ids], na.rm=TRUE)/sum(w[col_ids], na.rm=TRUE))*100, digi
 
 return(out)
 }
-

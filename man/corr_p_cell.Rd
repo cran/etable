@@ -42,7 +42,7 @@ NOT USED
 Minimum n in the cell for useful calculation. Cells with n<n_min deliver no output.
 }
 \item{digits}{
-Integer indicating the number of significant digits.
+Integer indicating the number of decimal places.
 }
 }
 \author{

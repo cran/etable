@@ -46,4 +46,3 @@ out<- mode_cell(x=x, y=y, z=z, w=w, cell_ids=cell_ids, row_ids=row_ids, col_ids=
 
 return(out)
 }
-

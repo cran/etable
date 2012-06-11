@@ -11,8 +11,8 @@ You can create simple to highly customized tables, with or without weighting.
 tabular.ade(x_vars, xname=NULL, y_vars=NULL, yname=NULL,
             z_vars=NULL, zname=NULL,
             rows=NULL, rnames=NULL, cols=NULL, cnames=NULL, w=NULL,
-            data=NULL, FUN, allnames=FALSE, nonames=TRUE, alllabel='All',
-            n_min=5, ...)
+            data=NULL, FUN, allnames=FALSE, nonames=TRUE, alllabel='Total',
+            inset='?', remove='', n_min=0, ...)
 }
 \arguments{
 \item{x_vars}{
@@ -105,6 +105,12 @@ Logical asking whether to use dimnames for variable labels or make all labeling 
 }
 \item{alllabel}{
 Label for overall Group without splitting in this Factor.
+}
+\item{inset}{
+Inset text in each cell, '?' will be replaced with the value of the cell.
+}
+\item{remove}{
+Remove a character string from each cell.
 }
 \item{n_min}{
 min N in each cell, it will be only passed in the cell function.

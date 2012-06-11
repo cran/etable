@@ -17,4 +17,3 @@ if(type==4) out<- paste(n , sep='')
 
 return(out)
 }
-

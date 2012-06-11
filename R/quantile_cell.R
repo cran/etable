@@ -21,4 +21,3 @@ if(i>1 & plabels)   out<- paste(out, ' | ',((probs[i])*100),'% (', out_part, ')'
 
 return(out)
 }
-

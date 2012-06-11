@@ -59,6 +59,7 @@ Keywords are:
       \item{ MEAN:     mean   }
       \item{ SD:       standard deviation  }
       \item{ MSD:      mean, standard deviation  }
+      \item{ M2SD:     mean-2SD, mean+2SD  }
       \item{ VAR:      variance   }
       \item{ MEDIAN:   median   }
       \item{ MD:       mean deviation from the mean (*1.253)  }
@@ -66,10 +67,13 @@ Keywords are:
       \item{ IQR:      interquartile range  }
       \item{ MQQ:      median (Q1/Q3)  }
       \item{ PROP:     proportion   }
+      \item{ POP:      proportion of level 2 (only binar)  }
       \item{ RANGE:    range   }
       \item{ CV:       coefficient of variation   }
       \item{ MODE:     mode  }
       \item{ MISS:     number of missing values   }
+      \item{ PNM:      proportion of non missing values   }
+      \item{ COMB:     POP for binar and MQQ for continues  }
       \item{ SKEW:     skewness   }
       \item{ KURT:     excess kurtosis }
       \item{ P1:       1th    Quantile  }

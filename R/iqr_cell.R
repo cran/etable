@@ -23,4 +23,3 @@ if(add_n) out<-  paste(out, 'N:', round(sum(w[cell_ids][which(!is.na(x[cell_ids]
 }
 return(out)
 }
-

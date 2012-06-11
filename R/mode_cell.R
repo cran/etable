@@ -16,4 +16,3 @@ if(!is.numeric(x)) out<- paste(value, ' (N:', round(N) , ')',  sep='', collapse=
 
 return(out)
 }
-

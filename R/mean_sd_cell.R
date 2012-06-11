@@ -24,4 +24,3 @@ a.format_n.ade(sqrt(wtd.var(x[cell_ids], w[cell_ids], na.rm=TRUE)), digits=digit
 }
 return(out)
 }
-

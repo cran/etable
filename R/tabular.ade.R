@@ -1,5 +1,5 @@
 tabular.ade <-
-function(x_vars, xname=NULL, y_vars=NULL, yname=NULL, z_vars=NULL, zname=NULL, rows=NULL, rnames=NULL, cols=NULL, cnames=NULL, w=NULL, data=NULL, FUN, allnames=FALSE, nonames=TRUE, alllabel='All', n_min=5,...){
+function(x_vars, xname=NULL, y_vars=NULL, yname=NULL, z_vars=NULL, zname=NULL, rows=NULL, rnames=NULL, cols=NULL, cnames=NULL, w=NULL, data=NULL, FUN, allnames=FALSE, nonames=TRUE, alllabel='Total', inset='?', remove='', n_min=0,...){
 if(is.null(xname))    xname<-x_vars
 if(is.null(yname))    yname<-y_vars
 if(is.null(zname))    zname<-z_vars
@@ -529,7 +529,11 @@ if(is.null(rowstart)) rowstart<- rowid
 if(is.null(colstart)) colstart<- colid
 
 M[rowid, colid]<- FUN(x=x_all, y=y_all, z=z_all, w=w_all, cell_ids=cell_ids, row_ids=row_ids, col_ids=col_ids, vnames=vnames, vars=vars, n_min=n_min, ...)
-#######################
+
+if(nchar(remove)>0) M[rowid, colid]<- gsub(paste('[', remove, ']', sep=''), '', M[rowid, colid])
+if(nchar(inset)>1)  M[rowid, colid]<- gsub('[?]', M[rowid, colid], inset)
+
+
 #####################################################
 
 }}}}}}
@@ -559,4 +563,3 @@ return(M)
 }
 
 }
-

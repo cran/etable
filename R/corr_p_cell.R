@@ -14,8 +14,7 @@ yin<-yin[-inout]
 win<-win[-inout]
 }
 corrvalue<- cov.wt(cbind(xin, yin), wt = win, cor = TRUE, center = TRUE, method = c("unbiased", "ML"))$cor[1,2]
-out<- a.format_n.ade(corrvalue, digits=digits)
+out<- a.round.ade(corrvalue, digits=digits)
 }
 return(out)
 }
-
