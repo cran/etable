@@ -1,1 +1,0 @@
-export( combi_cell , corr_p_cell , eventpct_cell , iqr_cell , mean_sd_cell , miss_cell , mode_cell , n_cell , quantile_cell , stat_cell , tabular.ade  ) 
