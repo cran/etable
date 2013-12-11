@@ -13,8 +13,8 @@ The package comes without any warranty.
 Package: \tab etable\cr
 Title: \tab Easy Table\cr
 Type: \tab Package\cr
-Version: \tab 1.0.8\cr
-Date: \tab 2013-02-22\cr
+Version: \tab 1.2.0\cr
+Date: \tab 2013-12-11\cr
 Depends: \tab epade, Hmisc, R (>= 2.13)\cr
 License: \tab GPL version 2 or newer\cr
 LazyLoad: \tab yes\cr

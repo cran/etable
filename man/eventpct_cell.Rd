@@ -57,6 +57,7 @@ Type of representation, one of following.
       \item{2, n (pct) }
       \item{3, pct }
       \item{4, n }
+      \item{5, pct (n/N) }
       }
 }
 }
