@@ -1,6 +1,6 @@
 stat_cell <-
 function(x, y, z, w, cell_ids, row_ids, col_ids, vnames, vars, n_min, digits=3, digits2=1){
-kwordlist<-c('N','MEAN','SD','MSD', 'VAR','MEDIAN','MD','MAD','MQQ','PROP','RANGE','CV','MAX','MIN','SUM','IQR','MODE','MISS','SKEW','KURT','P1','P2','P2.5','P5','P10','P25','P50','P75','P90','P95','P97.5','P98','P99', 'P99.9','PNM', 'M2SD', 'POP', 'COMB')
+kwordlist<-c('N','MEAN','SD','MSD', 'MCI', 'VAR','MEDIAN','MD','MAD','MQQ','PROP','PCI','RANGE','CV','MAX','MIN','SUM','IQR','MODE','MISS','SKEW','KURT','P1','P2','P2.5','P5','P10','P15','P20','P25','P30','P35','P40','P45','P50','P55','P60','P65','P70','P75','P80','P85','P90','P95','P97.5','P98','P99', 'P99.9','PNM', 'M2SD', 'M1SD', 'M3SD', 'MM2SD', 'MM1SD', 'MM3SD','POP', 'COMB', 'GEO', 'HARM', 'NORM50', 'NORM90', 'NORM95', 'NORM99', 'TM1', 'TM5', 'TM10', 'TM25', 'WM1', 'WM5', 'WM10', 'WM25')
 if(vars[1]%in%kwordlist) keyword<- vars[1]
 if(vars[2]%in%kwordlist) keyword<- vars[2]
 
@@ -39,6 +39,20 @@ out<- paste(a.round.ade((sum(w[cell_ids][which(x[cell_ids]==levels(x)[2])], na.r
 }
 }
 #########################################
+
+#########################################
+if(keyword=='PCI'){
+if(is.null(w)) w<- rep(1, length(x))
+out<- ' '
+if(nlevels(as.factor(x))==2){
+w[which(is.na(x))]<-NA
+x<- as.factor(x)
+pout<- prop.test(sum(w[cell_ids][which(x[cell_ids]==levels(x)[2])], na.rm=TRUE), sum(w[cell_ids], na.rm=TRUE))
+out<- paste(a.round.ade(pout$estimate*100, digits2), ' [', a.round.ade(pout$conf.int[1]*100, digits=digits2), '; ', a.round.ade(pout$conf.int[2]*100, digits=digits2), ']', sep='')
+}
+}
+#########################################
+
 
 #########################################
 if(keyword=='COMB'){
@@ -93,6 +107,22 @@ if(is.null(w))   w<- rep(1, length(x))
 out<-a.format_n.ade(    wtd.mean(x[cell_ids], w[cell_ids], na.rm=TRUE),  digits=digits)
 }
 #########################################
+
+#########################################
+if(keyword=='MCI'){
+alpha <- 0.05
+if(is.null(w))   w<- rep(1, length(x))
+mw  <- wtd.mean(x[cell_ids], w[cell_ids], na.rm=TRUE)
+sdw <- sqrt(wtd.var(x[cell_ids], w[cell_ids], na.rm=TRUE))
+w[which(is.na(x))]<-NA
+nw  <- sum(w[cell_ids], na.rm=TRUE)
+sew <- sdw/sqrt(nw)
+ll <- mw - qt(p = (1 - alpha/2), df = nw - 1) * sew
+ul <- mw + qt(p = (1 - alpha/2), df = nw - 1) * sew
+out<-paste(a.format_n.ade(mw,digits=digits), ' [', a.format_n.ade(ll,digits=digits), '; ', a.format_n.ade(ul,digits=digits), ']', sep='')
+}
+#########################################
+
 
 #########################################
 if(keyword=='SD'){
@@ -208,6 +238,18 @@ if(!is.null(w)){
 out<-a.format_n.ade(wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.10)), digits=digits)
 }}
 #########################################
+if(keyword=='P15'){
+if(is.null(w))  out<-a.format_n.ade(quantile(x[cell_ids], probs=c(0.15),  na.rm=TRUE, type=8), digits=digits)
+if(!is.null(w)){
+out<-a.format_n.ade(wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.15)), digits=digits)
+}}
+#########################################
+if(keyword=='P20'){
+if(is.null(w))  out<-a.format_n.ade(quantile(x[cell_ids], probs=c(0.2),  na.rm=TRUE, type=8), digits=digits)
+if(!is.null(w)){
+out<-a.format_n.ade(wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.2)), digits=digits)
+}}
+#########################################
 
 #########################################
 if(keyword=='P25'){
@@ -216,6 +258,31 @@ if(!is.null(w)){
 out<-a.format_n.ade(wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.25)), digits=digits)
 }}
 #########################################
+if(keyword=='P30'){
+if(is.null(w))  out<-a.format_n.ade(quantile(x[cell_ids], probs=c(0.3),  na.rm=TRUE, type=8), digits=digits)
+if(!is.null(w)){
+out<-a.format_n.ade(wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.3)), digits=digits)
+}}
+#########################################
+if(keyword=='P35'){
+if(is.null(w))  out<-a.format_n.ade(quantile(x[cell_ids], probs=c(0.35),  na.rm=TRUE, type=8), digits=digits)
+if(!is.null(w)){
+out<-a.format_n.ade(wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.35)), digits=digits)
+}}
+#########################################
+if(keyword=='P40'){
+if(is.null(w))  out<-a.format_n.ade(quantile(x[cell_ids], probs=c(0.4),  na.rm=TRUE, type=8), digits=digits)
+if(!is.null(w)){
+out<-a.format_n.ade(wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.4)), digits=digits)
+}}
+#########################################
+if(keyword=='P45'){
+if(is.null(w))  out<-a.format_n.ade(quantile(x[cell_ids], probs=c(0.45),  na.rm=TRUE, type=8), digits=digits)
+if(!is.null(w)){
+out<-a.format_n.ade(wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.45)), digits=digits)
+}}
+#########################################
+
 #########################################
 if(keyword=='P50'){
 if(is.null(w))  out<-a.format_n.ade(quantile(x[cell_ids], probs=c(0.5),  na.rm=TRUE, type=8), digits=digits)
@@ -223,10 +290,50 @@ if(!is.null(w)){
 out<-a.format_n.ade(wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.5)), digits=digits)
 }}
 #########################################
+
+if(keyword=='P55'){
+if(is.null(w))  out<-a.format_n.ade(quantile(x[cell_ids], probs=c(0.55),  na.rm=TRUE, type=8), digits=digits)
+if(!is.null(w)){
+out<-a.format_n.ade(wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.55)), digits=digits)
+}}
+#########################################
+
+if(keyword=='P60'){
+if(is.null(w))  out<-a.format_n.ade(quantile(x[cell_ids], probs=c(0.6),  na.rm=TRUE, type=8), digits=digits)
+if(!is.null(w)){
+out<-a.format_n.ade(wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.6)), digits=digits)
+}}
+#########################################
+if(keyword=='P65'){
+if(is.null(w))  out<-a.format_n.ade(quantile(x[cell_ids], probs=c(0.65),  na.rm=TRUE, type=8), digits=digits)
+if(!is.null(w)){
+out<-a.format_n.ade(wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.65)), digits=digits)
+}}
+#########################################
+if(keyword=='P70'){
+if(is.null(w))  out<-a.format_n.ade(quantile(x[cell_ids], probs=c(0.7),  na.rm=TRUE, type=8), digits=digits)
+if(!is.null(w)){
+out<-a.format_n.ade(wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.7)), digits=digits)
+}}
+#########################################
+
+#########################################
 if(keyword=='P75'){
 if(is.null(w))  out<-a.format_n.ade(quantile(x[cell_ids], probs=c(0.75),  na.rm=TRUE, type=8), digits=digits)
 if(!is.null(w)){
 out<-a.format_n.ade(wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.75)), digits=digits)
+}}
+#########################################
+if(keyword=='P80'){
+if(is.null(w))  out<-a.format_n.ade(quantile(x[cell_ids], probs=c(0.8),  na.rm=TRUE, type=8), digits=digits)
+if(!is.null(w)){
+out<-a.format_n.ade(wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.8)), digits=digits)
+}}
+#########################################
+if(keyword=='P85'){
+if(is.null(w))  out<-a.format_n.ade(quantile(x[cell_ids], probs=c(0.85),  na.rm=TRUE, type=8), digits=digits)
+if(!is.null(w)){
+out<-a.format_n.ade(wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.85)), digits=digits)
 }}
 #########################################
 if(keyword=='P90'){
@@ -364,6 +471,16 @@ out<- paste(m1,' (',vsd,')', sep='')
 }
 #########################################
 
+#########################################
+if(keyword=='M1SD'){
+if(is.null(w)) w<- rep(1, length(x))
+onesd<- sqrt(wtd.var(x[cell_ids], w[cell_ids], na.rm=TRUE))
+amean<- wtd.mean(x[cell_ids], w[cell_ids], na.rm=TRUE)
+low<- a.format_n.ade(amean-onesd, digits=digits)
+upp<- a.format_n.ade(amean+onesd, digits=digits)
+out<- paste(low,' - ',upp, sep='')
+}
+#########################################
 
 #########################################
 if(keyword=='M2SD'){
@@ -376,8 +493,220 @@ out<- paste(low,' - ',upp, sep='')
 }
 #########################################
 
+#########################################
+if(keyword=='M3SD'){
+if(is.null(w)) w<- rep(1, length(x))
+onesd<- sqrt(wtd.var(x[cell_ids], w[cell_ids], na.rm=TRUE))
+amean<- wtd.mean(x[cell_ids], w[cell_ids], na.rm=TRUE)
+low<- a.format_n.ade(amean-onesd*3, digits=digits)
+upp<- a.format_n.ade(amean+onesd*3, digits=digits)
+out<- paste(low,' - ',upp, sep='')
+}
+#########################################
+
+#########################################
+if(keyword=='MM1SD'){
+if(is.null(w)) w<- rep(1, length(x))
+onesd<- sqrt(wtd.var(x[cell_ids], w[cell_ids], na.rm=TRUE))
+amean<- wtd.mean(x[cell_ids], w[cell_ids], na.rm=TRUE)
+low<- a.format_n.ade(amean-onesd, digits=digits)
+upp<- a.format_n.ade(amean+onesd, digits=digits)
+out<- paste(a.format_n.ade(amean, digits=digits), ' (',low,' - ',upp,')', sep='')
+}
+#########################################
+
+#########################################
+if(keyword=='MM2SD'){
+if(is.null(w)) w<- rep(1, length(x))
+onesd<- sqrt(wtd.var(x[cell_ids], w[cell_ids], na.rm=TRUE))
+amean<- wtd.mean(x[cell_ids], w[cell_ids], na.rm=TRUE)
+low<- a.format_n.ade(amean-onesd*2, digits=digits)
+upp<- a.format_n.ade(amean+onesd*2, digits=digits)
+out<- paste(a.format_n.ade(amean, digits=digits), ' (',low,' - ',upp,')', sep='')
+}
+#########################################
+
+#########################################
+if(keyword=='MM3SD'){
+if(is.null(w)) w<- rep(1, length(x))
+onesd<- sqrt(wtd.var(x[cell_ids], w[cell_ids], na.rm=TRUE))
+amean<- wtd.mean(x[cell_ids], w[cell_ids], na.rm=TRUE)
+low<- a.format_n.ade(amean-onesd*3, digits=digits)
+upp<- a.format_n.ade(amean+onesd*3, digits=digits)
+out<- paste(a.format_n.ade(amean, digits=digits), ' (',low,' - ',upp,')', sep='')
+}
+#########################################
+
+
+#########################################
+if(keyword=='NORM50'){
+if(is.null(w)) w<- rep(1, length(x))
+onesd<- sqrt(wtd.var(x[cell_ids], w[cell_ids], na.rm=TRUE))
+amean<- wtd.mean(x[cell_ids], w[cell_ids], na.rm=TRUE)
+low<- a.format_n.ade(amean-onesd*0.675, digits=digits)
+upp<- a.format_n.ade(amean+onesd*0.675, digits=digits)
+out<- paste(low,' - ',upp, sep='')
+}
+#########################################
+
+#########################################
+if(keyword=='NORM90'){
+if(is.null(w)) w<- rep(1, length(x))
+onesd<- sqrt(wtd.var(x[cell_ids], w[cell_ids], na.rm=TRUE))
+amean<- wtd.mean(x[cell_ids], w[cell_ids], na.rm=TRUE)
+low<- a.format_n.ade(amean-onesd*1.645, digits=digits)
+upp<- a.format_n.ade(amean+onesd*1.645, digits=digits)
+out<- paste(low,' - ',upp, sep='')
+}
+#########################################
+
+#########################################
+if(keyword=='NORM95'){
+if(is.null(w)) w<- rep(1, length(x))
+onesd<- sqrt(wtd.var(x[cell_ids], w[cell_ids], na.rm=TRUE))
+amean<- wtd.mean(x[cell_ids], w[cell_ids], na.rm=TRUE)
+low<- a.format_n.ade(amean-onesd*1.96, digits=digits)
+upp<- a.format_n.ade(amean+onesd*1.96, digits=digits)
+out<- paste(low,' - ',upp, sep='')
+}
+#########################################
+
+#########################################
+if(keyword=='NORM99'){
+if(is.null(w)) w<- rep(1, length(x))
+onesd<- sqrt(wtd.var(x[cell_ids], w[cell_ids], na.rm=TRUE))
+amean<- wtd.mean(x[cell_ids], w[cell_ids], na.rm=TRUE)
+low<- a.format_n.ade(amean-onesd*2.576, digits=digits)
+upp<- a.format_n.ade(amean+onesd*2.576, digits=digits)
+out<- paste(low,' - ',upp, sep='')
+}
+#########################################
+
+#########################################
+if(keyword=='GEO'){
+if(is.null(w)) w<- rep(1, length(x))
+if(any(x[cell_ids]<=0, na.rm=TRUE)) warning('geometric mean is only meaningful for true positive values')
+w[cell_ids][which(is.na(x[cell_ids]))] <- NA
+x[cell_ids][which(is.na(w[cell_ids]))] <- NA
+ws <- sum(w[cell_ids], na.rm=TRUE)
+gmean <- exp(sum(log(x[cell_ids])*w[cell_ids], na.rm=TRUE)/ws)
+gmean <- a.format_n.ade(gmean, digits=digits)
+out<- gmean
+}
+#########################################
+
+#########################################
+if(keyword=='HARM'){
+if(is.null(w)) w<- rep(1, length(x))
+if(any(x[cell_ids]==0, na.rm=TRUE)) gmean<-0
+if(any(x[cell_ids]==0, na.rm=TRUE)) warning('harmonic mean with 0 values is set to 0')
+if(!any(x[cell_ids]==0, na.rm=TRUE)){
+w[cell_ids][which(is.na(x[cell_ids]))] <- NA
+gmean <- sum(w[cell_ids], na.rm=TRUE)/sum(w[cell_ids]/x[cell_ids], na.rm=TRUE)
+gmean <- a.format_n.ade(gmean, digits=digits)
+}
+out<- gmean
+}
+#########################################
+
+#########################################
+if(keyword=='TM1'){
+if(is.null(w))   w<- rep(1, length(x))
+ques <- wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.01, 0.99))
+x_cut <- x[cell_ids]
+w_cut <- w[cell_ids]
+x_cut[which(x_cut<ques[1] | x_cut>ques[2])] <- NA
+w_cut[which(x_cut<ques[1] | x_cut>ques[2])] <- NA
+out<-a.format_n.ade(wtd.mean(x_cut, w_cut, na.rm=TRUE),  digits=digits)
+}
+#########################################
+
+#########################################
+if(keyword=='TM5'){
+if(is.null(w))   w<- rep(1, length(x))
+ques <- wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.05, 0.95))
+x_cut <- x[cell_ids]
+w_cut <- w[cell_ids]
+x_cut[which(x_cut<ques[1] | x_cut>ques[2])] <- NA
+w_cut[which(x_cut<ques[1] | x_cut>ques[2])] <- NA
+out<-a.format_n.ade(wtd.mean(x_cut, w_cut, na.rm=TRUE),  digits=digits)
+}
+#########################################
+
+#########################################
+if(keyword=='TM10'){
+if(is.null(w))   w<- rep(1, length(x))
+ques <- wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.10, 0.90))
+x_cut <- x[cell_ids]
+w_cut <- w[cell_ids]
+x_cut[which(x_cut<ques[1] | x_cut>ques[2])] <- NA
+w_cut[which(x_cut<ques[1] | x_cut>ques[2])] <- NA
+out<-a.format_n.ade(wtd.mean(x_cut, w_cut, na.rm=TRUE),  digits=digits)
+}
+#########################################
+
+#########################################
+if(keyword=='TM25'){
+if(is.null(w))   w<- rep(1, length(x))
+ques <- wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.25, 0.75))
+x_cut <- x[cell_ids]
+w_cut <- w[cell_ids]
+x_cut[which(x_cut<ques[1] | x_cut>ques[2])] <- NA
+w_cut[which(x_cut<ques[1] | x_cut>ques[2])] <- NA
+out<-a.format_n.ade(wtd.mean(x_cut, w_cut, na.rm=TRUE),  digits=digits)
+}
+#########################################
+
+
+#########################################
+if(keyword=='WM1'){
+if(is.null(w))   w<- rep(1, length(x))
+ques <- wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.01, 0.99))
+x_cut <- x[cell_ids]
+w_cut <- w[cell_ids]
+x_cut[which(x_cut<ques[1] | x_cut>ques[2])] <- ques[1]
+w_cut[which(x_cut<ques[1] | x_cut>ques[2])] <- ques[2]
+out<-a.format_n.ade(wtd.mean(x_cut, w_cut, na.rm=TRUE),  digits=digits)
+}
+#########################################
+
+#########################################
+if(keyword=='WM5'){
+if(is.null(w))   w<- rep(1, length(x))
+ques <- wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.05, 0.95))
+x_cut <- x[cell_ids]
+w_cut <- w[cell_ids]
+x_cut[which(x_cut<ques[1] | x_cut>ques[2])] <- ques[1]
+w_cut[which(x_cut<ques[1] | x_cut>ques[2])] <- ques[2]
+out<-a.format_n.ade(wtd.mean(x_cut, w_cut, na.rm=TRUE),  digits=digits)
+}
+#########################################
+
+#########################################
+if(keyword=='WM10'){
+if(is.null(w))   w<- rep(1, length(x))
+ques <- wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.10, 0.90))
+x_cut <- x[cell_ids]
+w_cut <- w[cell_ids]
+x_cut[which(x_cut<ques[1] | x_cut>ques[2])] <- ques[1]
+w_cut[which(x_cut<ques[1] | x_cut>ques[2])] <- ques[2]
+out<-a.format_n.ade(wtd.mean(x_cut, w_cut, na.rm=TRUE),  digits=digits)
+}
+#########################################
+
+#########################################
+if(keyword=='WM25'){
+if(is.null(w))   w<- rep(1, length(x))
+ques <- wtd.quantile(x[cell_ids], w[cell_ids], probs=c(0.25, 0.75))
+x_cut <- x[cell_ids]
+w_cut <- w[cell_ids]
+x_cut[which(x_cut<ques[1] | x_cut>ques[2])] <- ques[1]
+w_cut[which(x_cut<ques[1] | x_cut>ques[2])] <- ques[2]
+out<-a.format_n.ade(wtd.mean(x_cut, w_cut, na.rm=TRUE),  digits=digits)
+}
+#########################################
+
 
 }
-
 return(out)
 }

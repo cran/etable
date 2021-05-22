@@ -1,9 +1,26 @@
-## ---- echo=FALSE, warning=FALSE, message=FALSE--------------------------------
+---
+title:  "Package etable."
+author: "Andreas Schulz"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Package etable.}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 library(knitr)
 library(etable)
 library(Hmisc)
+```
+## Introduction
 
-## ---- echo=FALSE--------------------------------------------------------------
+The main purpose of this package is to create descriptive tables for various subgroups in a quick and easy way.
+Most of the statistics can also be calculated using weights.
+Below are some examples of packet functionality using artificial data.
+
+
+```{r, echo=FALSE}
 
 set.seed(31415)
 age    <- round(runif(10000, 20, 80))
@@ -20,39 +37,114 @@ treat  <- factor(as.factor(rbinom(10000, 1, 0.2)), labels=c('no','yes'))
 ws     <- abs(rnorm(10000))
 d<-data.frame(sex,age,dec,ethnic,weight,height,bmi,bmi_q,stage,disease,treat,ws)
 
+```
 
-## ---- echo=TRUE, results='asis'-----------------------------------------------
+## Simple tables
+
+With the predifined cell-function iqr_cell one can generate a simple table with interquartile range of a variable.
+It calculates the median, Q1 and Q3 for bmi variable in data.frame d.
+The variable to be analysed is selected by setting `x_vars='bmi'`.
+With `rows='sex'` the factor to separate the table by rows is selected.
+Parameter `rnames='Sex'` set the label for the row groups.
+
+```{r, echo=TRUE, results='asis'}
 
 tab <- tabular.ade(x_vars='bmi', rows='sex', rnames='Sex', data=d, FUN=iqr_cell)
 knitr::kable(tab, caption='Median (Q1/Q3) of BMI')
 
+```
 
-## ---- echo=TRUE, results='asis'-----------------------------------------------
+
+
+### A simple 2 x 2 table
+
+For a simple 2 x 2 table, the second separation factor for columns needs to be specified, what is done with `cols='ethnic'` and `cnames='Ethnicity'`.
+
+
+```{r, echo=TRUE, results='asis'}
 
 tab<-tabular.ade(x_vars='bmi', rows='sex', rnames='Sex', cols='ethnic', cnames='Ethnicity', data=d, FUN=iqr_cell)
 knitr::kable(tab, caption='Median (Q1/Q3) of BMI')
 
+```
 
-## ---- echo=TRUE, results='asis'-----------------------------------------------
+
+### A n(nested) x 2 table
+
+More than one factor at once can be used for rows or columns to create nested tables using `rows=c('sex', 'dec'), rnames=c('Sex', 'Decades')`.
+
+```{r, echo=TRUE, results='asis'}
 
 tab<-tabular.ade(x_vars='bmi', rows=c('sex', 'dec'), rnames=c('Sex', 'Decades'),cols='ethnic', cnames='Ethnicity', data=d, FUN=iqr_cell)
 knitr::kable(tab, caption='Median (Q1/Q3) of BMI')
 
+```
 
-## ---- echo=TRUE, results='asis'-----------------------------------------------
+
+### A n x n nested table
+
+The cell function n_cell returns the number of non-missing observations in each cell.
+Missing values of `x_vars` variable will be excluded.
+
+```{r, echo=TRUE, results='asis'}
 
 tab<-tabular.ade(x_vars='sex', rows=c('dec','bmi_q'),  rnames=c('Decades','BMI Quantiles'), cols=c('sex', 'ethnic'), cnames=c('Sex', 'Ethnicity'), data=d, FUN=n_cell)
 knitr::kable(tab, caption='N of Obs.')
 
+```
 
-## ---- echo=TRUE, results='asis'-----------------------------------------------
+
+###  A n x 1 table
+
+With the cell function quantile_cell, quantiles can be calculated.
+The parameter `probs` defines which quantile should be calculated.
+
+
+```{r, echo=TRUE, results='asis'}
 
 tab<-tabular.ade(x_vars='bmi', xname='BMI', rows=c('sex','ethnic','disease','treat'), rnames=c('Sex', 'Ethnicity', 'Disease', 'Treatment'), data=d, FUN=quantile_cell, probs=0.95)
 knitr::kable(tab, caption='95th quantile of BMI')
 
 
+```
 
-## ---- echo=TRUE, results='asis'-----------------------------------------------
+## Predefined cell functions
+
+There are several predefined cell functions in this package.
+See the help pages for more information.
+The `stat_cell` function includes a wide range of statistics and is the most usefull cell function of all.
+
+
+* stat_cell     `basic parameters`, digits=3, digits2=1
+* combi_cell    `basic parameters`, digits=3, style=1
+* mean_sd_cell  `basic parameters`, digits=3, style=1, nsd=1
+* iqr_cell      `basic parameters`, digits=3, add_n=FALSE
+* quantile_cell `basic parameters`, digits=3, probs=0.5, plabels=FALSE
+* eventpct_cell `basic parameters`, digits=1, digits2=0, event=2, type=1
+* miss_cell     `basic parameters`, digits=0, pct=FALSE, prefix="", suffix=""
+* corr_p_cell   `basic parameters`, digits=3
+* mode_cell     `basic parameters`, digits=3
+
+
+Basic parameters are  `x, y, z, w, cell_ids, row_ids, col_ids, vnames, vars, n_min`.
+Each cell function must take these parameters. They will be automatically passed from `tabular.ade` function.
+Most of the functions use only the `x` variable for calculations and w for weighted calculations.
+Only `corr_p_cell` uses `y` variable.
+Additional parameters like `digits = 3` can be used in `tabular.ade(   , ...)` instead of the points.
+
+
+
+
+## Writing custom cell function
+
+There is a possibility to write custom cell function.
+It allows all possible designs of the cell and much more.
+
+### An example of a custom cell function
+
+
+
+```{r, echo=TRUE, results='asis'}
 
 my_cell<- function(x, y, z, w, cell_ids, row_ids, col_ids, vnames, vars, n_min)
 {
@@ -64,8 +156,12 @@ tab<-tabular.ade(x_vars='age', rows='sex', rnames='Sex', cols='dec', cnames='Dec
 knitr::kable(tab, caption='Mean Age')
 
 
+```
 
-## ---- echo=TRUE, results='asis'-----------------------------------------------
+### Another simple example of custom cell function
+
+
+```{r, echo=TRUE, results='asis'}
 
 my_cell<- function(x, y, z, w, cell_ids, row_ids, col_ids, vnames, vars, n_min)
 {
@@ -81,8 +177,12 @@ return(out)
 tab<-tabular.ade(x_vars='sex', rows='dec', rnames='Decades', cols='stage', cnames='Stage', data=d, FUN=my_cell)
 knitr::kable(tab, caption='Frequencies')
 
+```
 
-## ---- echo=TRUE, results='asis'-----------------------------------------------
+###  More complicated cell function example
+
+
+```{r, echo=TRUE, results='asis'}
 
 b_cell<- function(x, y, z, w, cell_ids, row_ids, col_ids, vnames, vars, n_min)
 {
@@ -109,8 +209,13 @@ return(out)
 tab<-tabular.ade(x_vars=c('bmi','ethnic','stage'),xname=c('BMI','Ethnicity','Stages'), cols='sex', cnames='Sex', data=d, FUN=b_cell)
 knitr::kable(tab, caption='Diverse variables')
 
+```
 
-## ---- echo=TRUE, results='asis'-----------------------------------------------
+
+### A T-test function, usage of x and y variables
+
+
+```{r, echo=TRUE, results='asis'}
 
 t_test_cell<- function(x, y, z, w, cell_ids, row_ids, col_ids, vnames, vars, n_min)
 {
@@ -127,8 +232,14 @@ tab<-tabular.ade(x_vars='bmi', xname='BMI', y_vars='ethnic', yname='Ethnicity', 
 knitr::kable(tab, caption='T-test for BMI between Ethnicity groups')
 
 
+```
 
-## ---- echo=TRUE, results='asis'-----------------------------------------------
+### Multiple x or y variables
+
+There is a possibility to pass more than one variable to `x_vars` or `x_vars` parameters.
+In this way a correlation matrix can be created.
+
+```{r, echo=TRUE, results='asis'}
 
 vars    <-c('age', 'weight', 'height', 'bmi')
 vlabels <-c('Age', 'Weight', 'Height', 'BMI')
@@ -136,8 +247,14 @@ vlabels <-c('Age', 'Weight', 'Height', 'BMI')
 tab<-tabular.ade(x_vars=vars, xname=vlabels, y_vars=vars, yname=vlabels,data=d, FUN=corr_p_cell, digits=2)
 knitr::kable(tab, caption='Pearson correlation')
 
+```
 
-## ---- echo=TRUE, results='asis'-----------------------------------------------
+### Multiple x with nested columns
+
+If there are multiple x variables, then they are listed line by line.
+
+
+```{r, echo=TRUE, results='asis'}
 
 vars    <-c('age', 'weight', 'height', 'bmi')
 vlabels <-c('Age', 'Weight', 'Height', 'BMI')
@@ -146,22 +263,50 @@ tab<-tabular.ade(x_vars=vars, xname=vlabels, cols=c('sex','stage'), cnames=c('Se
 knitr::kable(tab, caption='Medians')
 
 
+```
 
-## ---- echo=TRUE, results='asis'-----------------------------------------------
+
+
+
+
+## Complex tables
+
+### The `ALL` keyword
+
+The keyword `ALL`, after a factor in `rows` or `cols` statement, adds a row for overall sample.
+
+
+```{r, echo=TRUE, results='asis'}
 
 tab<-tabular.ade(x_vars='sex', rows=c('treat', 'ALL'), rnames=c('Treatment'), cols=c('disease', 'ALL'), cnames=c('Disease'), data=d, FUN=n_cell, alllabel='both')
 knitr::kable(tab, caption='Contingency table')
 
 
+```
 
-## ---- echo=TRUE, results='asis'-----------------------------------------------
+
+### Weighted tables
+
+Most of the predefined cell functions support weighting with `w=weights` parameter.
+This way weighted statistics can be calculated.
+
+
+
+```{r, echo=TRUE, results='asis'}
 
 tab<-tabular.ade(x_vars='sex', rows=c('sex', 'ALL', 'ethnic', 'stage'), rnames=c('Sex','Ethnicity', 'Stage'), w='ws', data=d, FUN=n_cell, digits=1)
 knitr::kable(tab, caption='weighted N')
 
 
+```
 
-## ---- echo=TRUE, results='asis'-----------------------------------------------
+### Various statistics in a table
+
+The predefined cell functions `stat_cell` can calculate several statistics at once.
+The statistics are set using keywords in `x_vars` or `y_vars` parameters.
+
+
+```{r, echo=TRUE, results='asis'}
 vars    <-c('age', 'weight', 'height', 'bmi')
 vlabels <-c('Age', 'Weight', 'Height', 'BMI')
 
@@ -171,8 +316,13 @@ keylabels <-c('Min', 'Max', 'Mean', 'SD', 'CV', 'Skewness', 'Kurtosis')
 tab<-tabular.ade(x_vars=vars, xname=vlabels, y_vars=keywords, yname=keylabels, data=d, FUN=stat_cell)
 knitr::kable(tab, caption='Various statistics')
 
+```
 
-## ---- echo=TRUE, results='asis'-----------------------------------------------
+
+### Various statistics combined with `rows` parameter
+
+
+```{r, echo=TRUE, results='asis'}
 
 keywords  <-c('N', 'MIN', 'MAX', 'MEAN', 'SD')
 keylabels <-c('N', 'Min', 'Max', 'Mean', 'SD')
@@ -181,8 +331,13 @@ tab<-tabular.ade(x_vars=vars, xname=vlabels, y_vars=keywords, yname=keylabels, r
 knitr::kable(tab, caption='Various statistics')
 
 
+```
 
-## ---- echo=TRUE, results='asis'-----------------------------------------------
+
+### An example using the statistic keywords in `x_vars` parameter
+
+
+```{r, echo=TRUE, results='asis'}
 keywords  <-c('N', 'MIN', 'MAX', 'MEAN', 'SD')
 keylabels <-c('N', 'Min', 'Max', 'Mean', 'SD')
 
@@ -190,8 +345,11 @@ keylabels <-c('N', 'Min', 'Max', 'Mean', 'SD')
 tab<-tabular.ade(x_vars=keywords, xname=keylabels, y_vars=vars, yname=vlabels, rows=c('sex', 'ALL'), rnames=c('Sex'),data=d, FUN=stat_cell)
 knitr::kable(tab, caption='Various statistics')
 
+```
 
-## ---- echo=TRUE, results='asis'-----------------------------------------------
+### And finally, an example of a weighted, multivariable, nested table with several statistics
+
+```{r, echo=TRUE, results='asis'}
 
 vars    <-c('age', 'weight', 'height', 'bmi')
 vlabels <-c('Age', 'Weight', 'Height', 'BMI')
@@ -202,5 +360,7 @@ keylabels <-c('N', 'Median', 'IQR')
 tab<-tabular.ade(x_vars=vars, xname=vlabels, y_vars=keywords, yname=keylabels, rows=c('sex', 'ALL'), rnames=c('Sex'),cols=c('ethnic'),cnames=c('Ethnicity'),w='ws',data=d,FUN=stat_cell)
 knitr::kable(tab, caption='Various statistics')
 
+
+```
 
 

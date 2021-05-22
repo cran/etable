@@ -1,15 +1,17 @@
 \name{eventpct_cell}
 \alias{eventpct_cell}
+
 \title{
-Factor level frequencies Cell FUN.
+Factor level frequencies cell function
 }
 \description{
-For calculating frequencies or proportions of a certain level from factor x.
+Calculates frequencies or proportions of a certain level of factor x.
 }
 \usage{
       eventpct_cell(x, y, z, w, cell_ids, row_ids, col_ids, vnames, vars, n_min,
       digits=1, digits2=0, event=2, type=1)
 }
+
 \arguments{
 \item{x}{
 The factor x for calculations
@@ -21,7 +23,7 @@ NOT USED
 NOT USED
 }
 \item{w}{
-Weights for x factor. Only if calculating weigted frequences.
+Weights for x factor, only if calculating weighted frequencies.
 }
 \item{cell_ids}{
 Index vector for selecting values in cell.
@@ -42,7 +44,7 @@ NOT USED
 Minimum n in the cell for useful calculation. Cells with n<n_min deliver no output.
 }
 \item{digits}{
-Integer indicating the number of decimal places (percentages)
+Integer indicating the number of decimal places (for percentages)
 }
 \item{digits2}{
 Integer indicating the number of decimal places (N, needed if N is not integer because of weighting)
@@ -60,20 +62,30 @@ Type of representation, one of following.
       \item{5, pct (n/N) }
       }
 }
+
 }
+
 \author{
-ADES <ades-s@web.de>
+Andreas Schulz <ades-s@web.de>
 }
+
 \examples{
+
 sex     <- factor(rbinom(1000, 1, 0.4), labels=c('Men', 'Women'))
 event   <- factor(rbinom(1000, 1, 0.1), labels=c('no',  'yes'))
 decades <- rbinom(1000, 3, 0.5)
 decades <- factor(decades, labels=c('[35,45)','[45,55)','[55,65)','[65,75)'))
 d<-data.frame(sex, decades, event)
+
 tabular.ade(x_vars=c('event'), xname=c('Event'),
    rows=c('sex','ALL'), rnames=c('Gender'),
    cols=c('decades', 'ALL'),   cnames=c('Age decades'),
    data=d, FUN=eventpct_cell)
+
+
 }
+
+
 \keyword{ percentages }
 \keyword{ frequency }
+

@@ -1,15 +1,17 @@
 \name{combi_cell}
 \alias{combi_cell}
+
 \title{
-Dichotomous and continuous variables combination Cell FUN
+Dichotomous and continuous variable combination cell function
 }
 \description{
-To calculate different statistics depending on the type of variable.
+Calculates different statistics depending on the type of variable.
 }
 \usage{
 combi_cell(x, y, z, w, cell_ids, row_ids, col_ids, vnames, vars, n_min,
               digits=3, style=1)
 }
+
 \arguments{
   \item{x}{
 The x variable for calculations, if not using y
@@ -52,18 +54,24 @@ Type of representation.
       }
 }
 }
+
 \author{
-ADES <ades-s@web.de>
+Andreas Schulz <ades-s@web.de>
 }
 \examples{
+
+
 sex     <- factor(rbinom(1000, 1, 0.4),  labels=c('Men', 'Women'))
 height  <- rnorm(1000, mean=1.7, sd=0.1)
 weight  <- rnorm(1000, mean=70, sd=5)
 bmi     <- weight/height^2
 event   <- factor(rbinom(1000, 1, 0.1), labels=c('no',  'yes'))
 d<-data.frame(sex, height, weight, bmi, event)
+
 tabular.ade(x_vars=names(d), cols=c('sex','ALL'), rnames=c('Gender'),
             data=d, FUN=combi_cell)
+
+
 }
 \keyword{ mean }
 \keyword{ median }
